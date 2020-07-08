@@ -48,7 +48,7 @@
                         <tr>
                             <th>Max/Min</th>
                             <?php foreach ($results['criteria'] as $result) : ?>
-                                <td><?= $result['max'] ?></td>
+                                <td><?= $result['weight'] ?></td>
                             <?php endforeach ?>
                         </tr>
                     </table>

@@ -17,7 +17,7 @@ class Home extends CI_Controller
 		$get['applicant_value'] = $this->spk->getApplicantValue();
 
 		foreach ($get['criteria'] as $count) {
-			$results['criteria'][] = $this->spk->getMaxMin($count['id']);
+			$results['criteria'][] = $this->spk->getMaxMin($count['sifat'], $count['id']);
 		}
 
 		foreach ($get['applicant'] as $count) {
@@ -25,11 +25,12 @@ class Home extends CI_Controller
 		}
 
 		foreach ($get['criteria'] as $count) {
-			$results['norm'][] = $this->spk->getNorm($results['criteria'][$count['id'] - 1]['max'], $count['id']);
+			$results['norm'][] = $this->spk->getNorm($results['criteria'][$count['id'] - 1]['weight'], $count['id']);
 		}
 
 		foreach ($get['criteria'] as $count) {
-			$results['norm_weight'][] = $this->spk->getNormWeight($results['criteria'][$count['id'] - 1]['max'], $count['id']);
+			$results['norm_weight'][] =
+				$this->spk->getNormWeight($results['criteria'][$count['id'] - 1]['weight'], $count['id']);
 		}
 
 		$data['results']['criteria'] = $results['criteria'];
@@ -63,8 +64,17 @@ class Home extends CI_Controller
 
 		$data['results']['total'] = $results['total'];
 
+		foreach ($results['total'] as $total) {
+			$hasil = array(
+				'pelamar_id' => $total['pelamar_id'],
+				'hasil' => $total['V']
+			);
+
+			$this->spk->insert_hasil($hasil);
+		}
+
 		echo '<pre>';
-		var_dump($data['results']['total']);
+		var_dump($results['total']);
 		echo '</pre>';
 
 		$this->load->view('index', $data);

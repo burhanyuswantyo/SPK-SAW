@@ -26,22 +26,35 @@ class Spk_Model extends CI_Model
 		return $this->db->get('tb_pelamar')->num_rows();
 	}
 
-	public function getMaxMin($id = 1)
+	public function getMaxMin($sifat, $id)
 	{
-		$query = "
-			SELECT MAX(`tb_nilai_pelamar`.`nilai`) AS 'max', `tb_kriteria`.`sifat`
-			FROM `tb_pelamar`
-			JOIN `tb_nilai_pelamar`
-			ON `tb_pelamar`.`id` = `tb_nilai_pelamar`.`pelamar_id`
-			JOIN`tb_kriteria`
-			ON `tb_kriteria`.`id` = `tb_nilai_pelamar`.`kriteria_id`
-			WHERE `tb_kriteria`.`id` = '$id'
-		";
+		if ($sifat == 1) {
+			$query = "
+				SELECT MAX(`tb_nilai_pelamar`.`nilai`) AS 'weight', `tb_kriteria`.`sifat`
+				FROM `tb_pelamar`
+				JOIN `tb_nilai_pelamar`
+				ON `tb_pelamar`.`id` = `tb_nilai_pelamar`.`pelamar_id`
+				JOIN`tb_kriteria`
+				ON `tb_kriteria`.`id` = `tb_nilai_pelamar`.`kriteria_id`
+				WHERE `tb_kriteria`.`id` = '$id'
+			";
+		} else {
+			$query = "
+				SELECT MIN(`tb_nilai_pelamar`.`nilai`) AS 'weight', `tb_kriteria`.`sifat`
+				FROM `tb_pelamar`
+				JOIN `tb_nilai_pelamar`
+				ON `tb_pelamar`.`id` = `tb_nilai_pelamar`.`pelamar_id`
+				JOIN`tb_kriteria`
+				ON `tb_kriteria`.`id` = `tb_nilai_pelamar`.`kriteria_id`
+				WHERE `tb_kriteria`.`id` = '$id'
+			";
+		}
+
 
 		return $this->db->query($query)->row_array();
 	}
 
-	public function getValue($id = 1)
+	public function getValue($id)
 	{
 		$query = "
 		SELECT `tb_pelamar`.`nama`, `tb_nilai_pelamar`.`kriteria_id`, `tb_nilai_pelamar`.`nilai` 
@@ -56,10 +69,10 @@ class Spk_Model extends CI_Model
 		return $this->db->query($query)->result_array();
 	}
 
-	public function getNorm($max, $criteria_id)
+	public function getNorm($weight, $criteria_id)
 	{
 		$query = "
-			SELECT `tb_pelamar`.`nama`, `tb_nilai_pelamar`.`kriteria_id`,`tb_nilai_pelamar`.`nilai`, (`tb_nilai_pelamar`.`nilai` / '$max') AS 'norm'
+			SELECT `tb_pelamar`.`nama`, `tb_nilai_pelamar`.`kriteria_id`,`tb_nilai_pelamar`.`nilai`, (`tb_nilai_pelamar`.`nilai` / '$weight') AS 'norm'
 			FROM `tb_pelamar` 
 			JOIN `tb_nilai_pelamar` 
 			ON `tb_pelamar`.`id` = `tb_nilai_pelamar`.`pelamar_id` 
@@ -71,10 +84,11 @@ class Spk_Model extends CI_Model
 		return $this->db->query($query)->result_array();
 	}
 
-	public function getNormWeight($max, $criteria_id)
+	public function getNormWeight($weight, $criteria_id)
 	{
 		$query = "
-			SELECT `tb_pelamar`.`id`, `tb_pelamar`.`nama`, `tb_nilai_pelamar`.`kriteria_id`, ((`tb_nilai_pelamar`.`nilai` / '$max') * `tb_kriteria`.`bobot`) AS 'norm'
+			SELECT `tb_pelamar`.`id`, `tb_pelamar`.`nama`, `tb_nilai_pelamar`.`kriteria_id`, 
+			((`tb_nilai_pelamar`.`nilai` / '$weight') * `tb_kriteria`.`bobot`) AS 'norm'
 			FROM `tb_pelamar` 
 			JOIN `tb_nilai_pelamar` 
 			ON `tb_pelamar`.`id` = `tb_nilai_pelamar`.`pelamar_id` 
@@ -94,9 +108,19 @@ class Spk_Model extends CI_Model
 	public function getV($pelamar_id)
 	{
 		$query = "
-			SELECT SUM(`norm`) AS 'V' FROM `tb_temp` WHERE `pelamar_id` = '$pelamar_id'
+			SELECT `pelamar_id`, SUM(`norm`) AS 'V' FROM `tb_temp` WHERE `pelamar_id` = '$pelamar_id'
 		";
 
 		return $this->db->query($query)->row_array();
+	}
+
+	public function delete_temp()
+	{
+		$this->db->truncate('tb_temp');
+	}
+
+	public function insert_hasil($hasil)
+	{
+		$this->db->insert('tb_hasil', $hasil);
 	}
 }
