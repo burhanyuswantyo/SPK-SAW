@@ -84,18 +84,31 @@ class Perhitungan_model extends CI_Model
 		return $this->db->query($query)->result_array();
 	}
 
-	public function getNormWeight($weight, $criteria_id)
+	public function getNormWeight($sifat, $weight, $criteria_id)
 	{
-		$query = "
-			SELECT `tb_pelamar`.`id`, `tb_pelamar`.`nama`, `tb_nilai_pelamar`.`kriteria_id`, 
-			((`tb_nilai_pelamar`.`nilai` / '$weight') * `tb_kriteria`.`bobot`) AS 'norm'
-			FROM `tb_pelamar` 
-			JOIN `tb_nilai_pelamar` 
-			ON `tb_pelamar`.`id` = `tb_nilai_pelamar`.`pelamar_id` 
-			JOIN`tb_kriteria` 
-			ON `tb_kriteria`.`id` = `tb_nilai_pelamar`.`kriteria_id` 
-			WHERE `tb_kriteria`.`id` = '$criteria_id'
-		";
+		if ($sifat == 1) {
+			$query = "
+				SELECT `tb_pelamar`.`id`, `tb_pelamar`.`nama`, `tb_nilai_pelamar`.`kriteria_id`, 
+				((`tb_nilai_pelamar`.`nilai` / '$weight') * `tb_kriteria`.`bobot`) AS 'norm'
+				FROM `tb_pelamar` 
+				JOIN `tb_nilai_pelamar` 
+				ON `tb_pelamar`.`id` = `tb_nilai_pelamar`.`pelamar_id` 
+				JOIN`tb_kriteria` 
+				ON `tb_kriteria`.`id` = `tb_nilai_pelamar`.`kriteria_id` 
+				WHERE `tb_kriteria`.`id` = '$criteria_id'
+			";
+		} else {
+			$query = "
+				SELECT `tb_pelamar`.`id`, `tb_pelamar`.`nama`, `tb_nilai_pelamar`.`kriteria_id`, 
+				(('$weight' / `tb_nilai_pelamar`.`nilai`) * `tb_kriteria`.`bobot`) AS 'norm'
+				FROM `tb_pelamar` 
+				JOIN `tb_nilai_pelamar` 
+				ON `tb_pelamar`.`id` = `tb_nilai_pelamar`.`pelamar_id` 
+				JOIN`tb_kriteria` 
+				ON `tb_kriteria`.`id` = `tb_nilai_pelamar`.`kriteria_id` 
+				WHERE `tb_kriteria`.`id` = '$criteria_id'
+			";
+		}
 
 		return $this->db->query($query)->result_array();
 	}

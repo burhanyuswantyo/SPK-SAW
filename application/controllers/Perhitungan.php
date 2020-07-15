@@ -30,7 +30,7 @@ class Perhitungan extends CI_Controller
 
 		foreach ($get['criteria'] as $count) {
 			$results['norm_weight'][] =
-				$this->perhitungan->getNormWeight($results['criteria'][$count['id'] - 1]['weight'], $count['id']);
+				$this->perhitungan->getNormWeight($count['sifat'], $results['criteria'][$count['id'] - 1]['weight'], $count['id']);
 		}
 
 		// $data['results']['criteria'] = $results['criteria'];
